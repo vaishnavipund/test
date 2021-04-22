@@ -1,23 +1,47 @@
-me: This playbook is for my webserver
+---
+-
+  name: This playbook is for Docker Installation and setup
   hosts: localhost
   connection: local
 
   tasks:
     -
-      name: Installing webserver package
+      name: Remove the packages for pre-req
       yum:
-        name: httpd
+        name:
+          - docker
+          - docker-client
+          - docker-client-latest
+          - docker-common
+          - docker-latest
+          - docker-latest-logrotate
+          - docker-logrotate
+          - docker-engine
+        state: absent
+
+    -
+      name: Installing pre-req package for Docker
+      yum:
+        name: yum-utils
         state: present
 
     -
-      name: Configuring webserver file
-      copy:
-        dest: /var/www/html/index.html
-        content: "<h1>This page has been created using the Power of Ansible Automation</h1>"
+      name: Adding docker official repo
+      get_url:
+        dest: /etc/yum.repos.d/docker-ce.repo
+        url: https://download.docker.com/linux/centos/docker-ce.repo
 
     -
-      name: Start webserver application
+      name: Installing Docker Software
+      yum:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+
+    -
+      name: Starting and enabling Docker Services
       service:
-        name: httpd
+        name: docker
         state: started
         enabled: yes
